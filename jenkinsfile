@@ -17,7 +17,15 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo 'Checking out code from Git...'
-                git 'https://github.com/Bhargavjmr/swagger-01.git'
+                script {
+                    try {
+                        git branch: 'main', url: 'https://github.com/Bhargavjmr/swagger-01.git'
+                    } catch (Exception e) {
+                        echo "Error checking out code: ${e.message}"
+                        currentBuild.result = 'FAILURE'
+                        error("Stopping pipeline due to checkout error.")
+                    }
+                }
             }
         }
         
