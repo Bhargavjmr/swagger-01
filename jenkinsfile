@@ -1,29 +1,24 @@
 pipeline {
     agent any
-    
+
+    environment {
+        MAVEN_HOME = '/opt/maven'
+        PATH = "${MAVEN_HOME}/bin:${env.PATH}"
+    }
+
     stages {
-        stage('Clean Workspace') {
-            steps {
-                echo 'Cleaning workspace...'
-                deleteDir() // This deletes the entire workspace
-            }
-        }
-        
         stage('Checkout') {
             steps {
                 echo 'Checking out code from Git...'
-                git branch: 'main', url: 'https://github.com/Bhargavjmr/swagger-01.git'
+                git 'https://github.com/Bhargavjmr/swagger-01.git'
             }
         }
         
         stage('Build') {
             steps {
-                echo 'Building the JAR file...'
-                sh 'mvn clean package'
-            }
-            post {
-                success {
-                    archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+                dir('/var/lib/jenkins/workspace/CICD') {
+                    echo 'Building the JAR file...'
+                    sh 'mvn clean package'
                 }
             }
         }
