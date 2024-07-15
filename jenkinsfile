@@ -2,10 +2,17 @@ pipeline {
     agent any
     
     stages {
+        stage('Clean Workspace') {
+            steps {
+                echo 'Cleaning workspace...'
+                deleteDir() // This deletes the entire workspace
+            }
+        }
+        
         stage('Checkout') {
             steps {
                 echo 'Checking out code from Git...'
-                git 'https://github.com/Bhargavjmr/swagger-01.git'
+                git branch: 'main', url: 'https://github.com/Bhargavjmr/swagger-01.git'
             }
         }
         
