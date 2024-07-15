@@ -36,6 +36,12 @@ pipeline {
                     sh 'mvn clean package'
                 }
             }
+            post {
+                success {
+                    echo 'Archiving the JAR file...'
+                    archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+                }
+            }
         }
     }
 }
