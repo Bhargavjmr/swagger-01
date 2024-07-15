@@ -21,12 +21,4 @@ pipeline {
             }
         }
     }
-    
-    post {
-        always {
-            echo 'Cleaning up...'
-            // Clean up workspace if needed
-            cleanWs()
-        }
-    }
 }
