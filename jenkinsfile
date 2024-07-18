@@ -4,6 +4,10 @@ pipeline {
     environment {
         MAVEN_HOME = '/opt/maven'
         PATH = "${MAVEN_HOME}/bin:${env.PATH}"
+        TARGET_SERVER = 'ec2-user@184.72.69.1' // Update with the actual user and IP of your target server
+        TARGET_PATH = '/u01' // Path on the target server
+        JAR_NAME = 'swagger-configuration-0.0.1-SNAPSHOT.jar'
+        SSH_CREDENTIALS_ID = 'my-pem' // ID of the stored PEM key in Jenkins
     }
 
     stages {
@@ -47,11 +51,39 @@ pipeline {
         stage('Upload to S3') {
             steps {
                 script {
-                    echo 'bhagavUploading artifact to S3...'
+                    echo 'Uploading artifact to S3...'
                     sh '''
                         ARTIFACT=$(ls /var/lib/jenkins/workspace/CICD/target/*.jar)
                         aws s3 cp $ARTIFACT s3://jumchuk/
                     '''
+                }
+            }
+        }
+
+        stage('Copy to Target Server') {
+            steps {
+                script {
+                    echo 'Copying artifact to target server...'
+                    withCredentials([sshUserPrivateKey(credentialsId: env.SSH_CREDENTIALS_ID, keyFileVariable: 'PEM_KEY')]) {
+                        sh '''
+                            echo "Using PEM key: $PEM_KEY"
+                            scp -i $PEM_KEY /var/lib/jenkins/workspace/CICD/target/${JAR_NAME} ${TARGET_SERVER}:${TARGET_PATH}/
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Run JAR on Target Server') {
+            steps {
+                script {
+                    echo 'Running the JAR on the target server...'
+                    withCredentials([sshUserPrivateKey(credentialsId: env.SSH_CREDENTIALS_ID, keyFileVariable: 'PEM_KEY')]) {
+                        sh '''
+                            echo "Using PEM key: $PEM_KEY"
+                            ssh -i $PEM_KEY ${TARGET_SERVER} "sudo nohup java -Dspring.profiles.active=mysql -jar ${TARGET_PATH}/${JAR_NAME} >> ${TARGET_PATH}/state-notification.log 2>&1 &"
+                        '''
+                    }
                 }
             }
         }
