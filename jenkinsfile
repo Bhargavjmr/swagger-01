@@ -28,7 +28,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Build') {
             steps {
                 dir('/var/lib/jenkins/workspace/CICD') {
@@ -38,8 +38,20 @@ pipeline {
             }
             post {
                 success {
-                    echo 'Archivsdccsdcsighjjgng the JAR file...'
+                    echo 'Archiving the JAR file...'
                     archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+                }
+            }
+        }
+
+        stage('Upload to S3') {
+            steps {
+                script {
+                    echo 'Uploading artifact to S3...'
+                    sh '''
+                        ARTIFACT=$(ls /var/lib/jenkins/workspace/CICD/target/*.jar)
+                        aws s3 cp $ARTIFACT s3://jumchuk/
+                    '''
                 }
             }
         }
