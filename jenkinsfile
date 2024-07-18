@@ -38,7 +38,7 @@ pipeline {
             }
             post {
                 success {
-                    echo 'Archivighjjgng the JAR file...'
+                    echo 'Archivsdccsdcsighjjgng the JAR file...'
                     archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
                 }
             }
