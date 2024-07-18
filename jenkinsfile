@@ -47,7 +47,7 @@ pipeline {
         stage('Upload to S3') {
             steps {
                 script {
-                    echo 'Uploading artifact to S3...'
+                    echo 'bhagavUploading artifact to S3...'
                     sh '''
                         ARTIFACT=$(ls /var/lib/jenkins/workspace/CICD/target/*.jar)
                         aws s3 cp $ARTIFACT s3://jumchuk/
